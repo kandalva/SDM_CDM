@@ -59,7 +59,7 @@ obj_mapper = {
     "REAL": lambda x: sqlalchemy.types.REAL,
     "DATE": lambda x: sqlalchemy.types.DATE,
     "TIME": lambda x: sqlalchemy.types.TIME,
-    "CLOB": lambda x: sqlalchemy.types.TEXT
+    "CLOB": lambda x: sqlalchemy.types.CLOB
 }
 
 for rdbms in supported_rdbms:
@@ -84,7 +84,7 @@ for rdbms in supported_rdbms:
             varlength = 0
             varname = row['項目（英語）']
             if varname == '':
-                varname = 'NA' #pandas parse 'NA' to ''を値無しに解釈する。NAフィルタをExcelFileメソッドで無効にする方法は？
+                varname = 'NA' #バッドノウハウ pandasが'NA'を値無しに解釈する。NAフィルタをExcelFileメソッドで無効にする方法は？
             nullable = True
             varkey = row['KEY']
             varindex = row['INDEX']
