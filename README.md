@@ -14,7 +14,7 @@ Installation
 ==================
 
 pip install numpy pandas
-pip install pre sqlalchemy #for comment feature supported by SQLAlchemy 1.2 (beta at Sep 2017)
+pip install sqlalchemy #requires SQLAlchemy 1.2 or later
 pip install ibm_db_sa #(optional) for who wants DB2 support.
 
 Place SDM schema definition file on the specified folder(../specs) of the script and run with:

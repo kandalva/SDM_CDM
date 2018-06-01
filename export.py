@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
+
 import os
 import pandas as pd
 import re
-import math
 import numpy as np
 
 from sqlalchemy import create_engine
@@ -9,6 +10,7 @@ from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey
 from sqlalchemy.schema import UniqueConstraint
 
 import sqlalchemy.types  # for SQL data types
+
 
 debug = False # print out generated SQL statment without saving file.
 #supported_rdbms = ['sqlite', 'mysql', 'postgresql', 'oracle', 'mssql','db2+ibm_db']
@@ -59,7 +61,7 @@ obj_mapper = {
     "REAL": lambda x: sqlalchemy.types.REAL,
     "DATE": lambda x: sqlalchemy.types.DATE,
     "TIME": lambda x: sqlalchemy.types.TIME,
-    "CLOB": lambda x: sqlalchemy.types.CLOB
+    "CLOB": lambda x: sqlalchemy.types.TEXT
 }
 
 for rdbms in supported_rdbms:
@@ -84,7 +86,7 @@ for rdbms in supported_rdbms:
             varlength = 0
             varname = row['項目（英語）']
             if varname == '':
-                varname = 'NA' #バッドノウハウ pandasが'NA'を値無しに解釈する。NAフィルタをExcelFileメソッドで無効にする方法は？
+                varname = 'NA' #pandas parse 'NA' to ''を値無しに解釈する。NAフィルタをExcelFileメソッドで無効にする方法は？
             nullable = True
             varkey = row['KEY']
             varindex = row['INDEX']
@@ -156,7 +158,7 @@ for rdbms in supported_rdbms:
         file = "./sql/"+rdbms+".sql"
         if os.path.exists(file):
             os.remove(file)
-        f = open(file, 'w')
+        f = open(file, 'w',encoding="utf-8")
         f.write(sql_stmts)
         f.close()
 
