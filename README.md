@@ -12,10 +12,11 @@ If you simply want to build SDM-based DWH, you need not run the tool, however, y
 
 Installation
 ==================
-
+```
 pip install numpy pandas
 pip install sqlalchemy #requires SQLAlchemy 1.2 or later	
 pip install ibm_db_sa #(optional) for who wants DB2 support.
+```
 
 Place the SDM schema definition file on the specified folder(../specs) of the script and run with:
 
