@@ -13,10 +13,10 @@ import sqlalchemy.types  # for SQL data types
 
 
 debug = False # print out generated SQL statment without saving file.
-#supported_rdbms = ['sqlite', 'mysql', 'postgresql', 'oracle', 'mssql','db2+ibm_db']
-supported_rdbms = ['sqlite', 'mysql', 'postgresql','oracle', 'mssql']
+supported_rdbms = ['db2+ibm_db','sqlite', 'mysql', 'postgresql','oracle', 'mssql']
 
-spec_file = '../specs/SDM_V1.04.xlsx'
+#SDM Common Data Model specification file
+spec_file = '../specs/SDM_V1.08.xlsx'
 
 
 class SQLCompiler:
@@ -37,8 +37,8 @@ xl = pd.ExcelFile(spec_file)
 
 sheets = [x for x in xl.sheet_names if 'SDM_' in x]
 
-key_values = ['P', 'N', '0', 'K', '']
-index_values = ['I', 'N', 'M', '']
+key_values = ['P', 'N', '0', 'K', '',' ']
+index_values = ['I', 'N', 'M', '',' ']
 
 re_nullables = re.compile(r"^NOT NULL"),
 
@@ -50,7 +50,8 @@ re_matchings = {
     "REAL": re.compile(r"^REAL"),
     "DATE": re.compile(r"^DATE"),
     "TIME": re.compile(r"^TIME"),
-    "CLOB": re.compile(r"^CLOB") #Ignore size options for using default size of CLOB
+    "CLOB": re.compile(r"^CLOB"), #Ignore size options for using default size of CLOB
+    "BLOB": re.compile(r"^BLOB")
 }
 
 obj_mapper = {
@@ -61,7 +62,8 @@ obj_mapper = {
     "REAL": lambda x: sqlalchemy.types.REAL,
     "DATE": lambda x: sqlalchemy.types.DATE,
     "TIME": lambda x: sqlalchemy.types.TIME,
-    "CLOB": lambda x: sqlalchemy.types.TEXT
+    "CLOB": lambda x: sqlalchemy.types.TEXT,
+    "BLOB": lambda x: sqlalchemy.types.LargeBinary
 }
 
 for rdbms in supported_rdbms:
@@ -81,7 +83,7 @@ for rdbms in supported_rdbms:
         for index, row in df.iterrows():
             def_vartype = row['型']
             def_nullable = row['NULL']
-            comment = row['項目の内容']
+            comment = "" # comment = row['項目の内容']
             vartype = None
             varlength = 0
             varname = row['項目（英語）']
@@ -139,7 +141,7 @@ for rdbms in supported_rdbms:
 
             obj = obj_mapper[vartype](varlength)
             col = Column(varname, obj, primary_key=is_primary_key,nullable=not nullable,index=is_indexed)
-            col.comment = comment
+            col.comment = comment # remove comment
             tbl.append_column(col)
 
 
