@@ -16,7 +16,7 @@ debug = False # print out generated SQL statment without saving file.
 supported_rdbms = ['db2+ibm_db','sqlite', 'mysql', 'postgresql','oracle', 'mssql']
 
 #SDM Common Data Model specification file
-spec_file = '../specs/SDM_V1.08.xlsx'
+spec_file = '../specs/SDM_V1.09.xlsx'
 
 
 class SQLCompiler:
