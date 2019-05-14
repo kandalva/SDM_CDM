@@ -13,7 +13,19 @@ import sqlalchemy.types  # for SQL data types
 
 
 debug = False # print out generated SQL statment without saving file.
-supported_rdbms = ['db2+ibm_db','sqlite', 'mysql', 'postgresql','oracle', 'mssql']
+
+#temporary drop ibm_db2 support for my shortage of time
+supported_rdbms = ['sqlite', 'mysql', 'postgresql','oracle', 'mssql']
+#supported_rdbms = ['db2+ibm_db','sqlite', 'mysql', 'postgresql','oracle', 'mssql']
+maximum_idx_length = {
+    'db2+ibm_db' : 64,
+    'sqlite' : 64,
+    'mysql' : 64,
+    'postgresql':63,
+    'oracle':30,
+    'mssql':64
+}
+
 
 #SDM Common Data Model specification file
 spec_file = '../specs/SDM_V1.09.xlsx'
@@ -63,7 +75,8 @@ obj_mapper = {
     "DATE": lambda x: sqlalchemy.types.DATE,
     "TIME": lambda x: sqlalchemy.types.TIME,
     "CLOB": lambda x: sqlalchemy.types.TEXT,
-    "BLOB": lambda x: sqlalchemy.types.LargeBinary
+    "BLOB": lambda x: sqlalchemy.types.LargeBinary,
+    "TEXT": lambda x: sqlalchemy.types.TEXT
 }
 
 for rdbms in supported_rdbms:
@@ -83,7 +96,7 @@ for rdbms in supported_rdbms:
         for index, row in df.iterrows():
             def_vartype = row['型']
             def_nullable = row['NULL']
-            comment = "" # comment = row['項目の内容']
+            comment = "" # comment = row['項目の内容'] # Intentionally removed comment for concerning intelectural property issue of SDM specification.
             vartype = None
             varlength = 0
             varname = row['項目（英語）']
@@ -139,7 +152,11 @@ for rdbms in supported_rdbms:
 
             #M : Multi-Dimensional Cluster Index
 
-            obj = obj_mapper[vartype](varlength)
+            #長すぎるCHAR/VARCHARはTEXTへ 基準として256文字
+            if (vartype in ['CHAR','VARCHAR'] and varlength >= 256):
+                obj = obj_mapper["TEXT"](varlength)
+            else:
+                obj = obj_mapper[vartype](varlength)
             col = Column(varname, obj, primary_key=is_primary_key,nullable=not nullable,index=is_indexed)
             col.comment = comment # remove comment
             tbl.append_column(col)
@@ -148,7 +165,8 @@ for rdbms in supported_rdbms:
         #Check mulitple key options
         dfk = df[df['KEY'] == 'K']
         if len(dfk) > 1:
-            tbl.append_constraint(UniqueConstraint(*dfk['項目（英語）'],name="uniq_idx_"+'_'.join(dfk['項目（英語）'])))
+            idx_name = ("uniq_idx_"+'_'.join(dfk['項目（英語）']))[:maximum_idx_length[rdbms]] #Issue: MySQL has maximum 64 chars for index name
+            tbl.append_constraint(UniqueConstraint(*dfk['項目（英語）'],name=idx_name))
 
 
         sql_stmt = compiler.compile(metadata)
