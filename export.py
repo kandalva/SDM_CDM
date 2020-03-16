@@ -14,6 +14,10 @@ import sqlalchemy.types  # for SQL data types
 
 debug = False # print out generated SQL statment without saving file.
 
+if debug:
+    import IPython
+
+
 #temporary drop ibm_db2 support for my shortage of time
 supported_rdbms = ['sqlite', 'mysql', 'postgresql','oracle', 'mssql']
 #supported_rdbms = ['db2+ibm_db','sqlite', 'mysql', 'postgresql','oracle', 'mssql']
@@ -28,7 +32,7 @@ maximum_idx_length = {
 
 
 #SDM Common Data Model specification file
-spec_file = '../specs/SDM_V1.09.xlsx'
+spec_file = '../specs/SDM_V1.12.xlsx'
 
 
 class SQLCompiler:
@@ -124,22 +128,30 @@ for rdbms in supported_rdbms:
             # Check every items are parsed correctly
             if vartype == None:
                 print("@ %(sheet)s %(varname)s - %(def_nullable)s " % locals())
+                if debug:
+                    IPython.embed()
                 raise
 
             if varkey not in key_values:
                 print("@ %(sheet)s %(varname)s - %(varkey)s " % locals())
+                if debug:
+                    IPython.embed()
                 raise
 
             if varindex not in index_values:
                 print("@ %(sheet)s %(varname)s - %(varindex)s " % locals())
+                if debug:
+                    IPython.embed()
                 raise
 
             if def_nullable in ['NOT_NULL','NOT NULL']:
                 nullable = False
-            elif def_nullable in ['','　']:
+            elif def_nullable in ['','　', ' ']:
                 pass
             else:
-                raise ValueError("@ %(sheet)s %(varname)s - %(def_nullable)s " % locals())
+                if debug:
+                    IPython.embed()
+                raise ValueError("@ %(sheet)s %(varname)s - '%(def_nullable)s' " % locals())
 
             #Check Index options
             #I : Normal Index
@@ -157,6 +169,9 @@ for rdbms in supported_rdbms:
                 obj = obj_mapper["TEXT"](varlength)
             else:
                 obj = obj_mapper[vartype](varlength)
+
+            #postgresql 11　小文字対応
+
             col = Column(varname, obj, primary_key=is_primary_key,nullable=not nullable,index=is_indexed)
             col.comment = comment # remove comment
             tbl.append_column(col)

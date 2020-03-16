@@ -1,5 +1,5 @@
 # SDM_CDM
-DDL Generator and DDL for Semantic Data Modeling v.1.09
+DDL Generator and DDL for Semantic Data Modeling v.1.12
 =================
 
 The tool generates DDL files for SDM DWH. SDM is an abbreviation of “Semantic Data Model”, designed for standardization of DWH to share cohort query and BI tools experiences in the healthcare community. See details about SDM at the SDM consortium (http://sdm-c.org/).
@@ -13,7 +13,7 @@ If you simply want to build SDM-based DWH, you need not run the tool, however, y
 Installation
 ==================
 ```
-pip install numpy pandas
+pip install numpy pandas xlrd
 pip install sqlalchemy #requires SQLAlchemy 1.2 or later	
 pip install ibm_db_sa #(optional) for who wants DB2 support.
 ```
